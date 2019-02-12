@@ -202,13 +202,28 @@ function Mailbox(props) {
   const unreadMessages = props.unreadMessages
   return (
     <div>
-      <h1>Hello!</h1>
+      <h1>Mailbox!</h1>
       {unreadMessages.length > 0 &&
-        <p>
+        <div>
+          <p>
           您有{unreadMessages.length}条未读信息。
-        </p>
+          </p>
+          <MessegerList messeger={messeger} />
+        </div>
       }
     </div>
+  )
+}
+
+function MessegerList(props) {
+  const messeger = props.messeger
+  const messegerList = messeger.map((messeger) =>
+    <li key={messeger.toString()}>
+      {messeger}
+    </li>
+  )
+  return (
+    <ul>{messegerList}</ul>
   )
 }
 
@@ -249,6 +264,31 @@ class Page extends React.Component {
   }
 }
 
+function Blog(props) {
+  const sidebar = (
+    <ul>
+      {props.posts.map((post) =>
+        <li key={post.id}>
+          {post.title}
+        </li>
+      )}
+    </ul>
+  );
+  const content = props.posts.map((post) =>
+    <div key={post.id}>
+      <h3>{post.title}</h3>
+      <p>{post.content}</p>
+    </div>
+  );
+  return (
+    <div>
+      {sidebar}
+      <hr />
+      {content}
+    </div>
+  );
+}
+
 var i = 2
 var myStyle = {
   fontSize: 20,
@@ -259,6 +299,10 @@ var arr = [
   <h4 key={2}>第二项</h4>
 ]
 const messeger = ['React', 'Vue', 'Angular']
+const posts = [
+  {id: 1, title: 'Hello World', content: 'Welcome to learning React!'},
+  {id: 2, title: 'Installation', content: 'You can install React from npm.'}
+]
 
 class App extends Component {
   render() {
@@ -286,6 +330,7 @@ class App extends Component {
           <LoginControl />
           <Mailbox unreadMessages={messeger}/>
           <Page />
+          <Blog posts={posts} />
         </header>
       </div>
     );
