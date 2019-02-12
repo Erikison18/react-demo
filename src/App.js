@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom'
 import logo from './logo.svg';
 import './App.css';
 import PropTypes from 'prop-types'
@@ -289,6 +290,29 @@ function Blog(props) {
   );
 }
 
+class Counter extends React.Component{
+  constructor(props) {
+    super(props)
+    this.state = {clickCount: 0}
+    this.handleClick = this.handleClick.bind(this)
+  }
+
+  handleClick() {
+    this.setState(function(state) {
+      return {clickCount: state.clickCount + 1}
+    })
+    this.forceUpdate(function() {
+      console.log('forceUpdate')
+    })
+    console.log('findDOMNode', ReactDOM.findDOMNode(this.refs.tip))
+    // console.log('isMounted', ReactDOM.isMounted())
+  }
+
+  render() {
+    return (<h2 onClick={this.handleClick}>点击次数为：{this.state.clickCount}</h2>)
+  }
+}
+
 var i = 2
 var myStyle = {
   fontSize: 20,
@@ -331,6 +355,7 @@ class App extends Component {
           <Mailbox unreadMessages={messeger}/>
           <Page />
           <Blog posts={posts} />
+          <Counter />
         </header>
       </div>
     );
