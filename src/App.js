@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
+import $ from 'jquery'
 import logo from './logo.svg';
 import './App.css';
 import PropTypes from 'prop-types'
@@ -68,13 +69,27 @@ class Clock2 extends React.Component {
 
 
 class WebSite extends React.Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
 
     this.state = {
       name: '123',
-      site: 'https://www.runoob.com'
+      site: 'https://www.runoob.com',
+      opacity: 1.0
     }
+  }
+
+  componentDidMount() {
+    this.timer = setInterval(function() {
+      var opacity = this.state.opacity
+      opacity -=0.05
+      if (opacity < 0.1) {
+        opacity = 1.0
+      }
+      this.setState({
+        opacity: opacity
+      })
+    }.bind(this), 100)
   }
 
   render() {
@@ -82,6 +97,7 @@ class WebSite extends React.Component {
       <div>
         <Name name={this.state.name} />
         <Link site={this.state.site} />
+        <p style={{opacity: this.state.opacity}}>{this.props.text}</p>
       </div>
     )
   }
@@ -304,12 +320,198 @@ class Counter extends React.Component{
     this.forceUpdate(function() {
       console.log('forceUpdate')
     })
-    console.log('findDOMNode', ReactDOM.findDOMNode(this.refs.tip))
+    console.log(this.refs.Counter)
+    console.log('findDOMNode', ReactDOM.findDOMNode(this.refs.Counter))
     // console.log('isMounted', ReactDOM.isMounted())
   }
 
   render() {
-    return (<h2 onClick={this.handleClick}>点击次数为：{this.state.clickCount}</h2>)
+    return (<h2 onClick={this.handleClick} ref="Counter">点击次数为：{this.state.clickCount}</h2>)
+  }
+}
+
+class Button extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {data: 0}
+    this.setNewNumber = this.setNewNumber.bind(this)
+  }
+
+  setNewNumber() {
+    this.setState({data: this.state.data + 1})
+  }
+
+  render() {
+    return (
+      <div>
+        <button onClick={this.setNewNumber}>INCREMENT</button>
+        <Content myNumber={this.state.data}/>
+      </div>
+    )
+  }
+}
+
+class Content extends React.Component {
+  componentWillMount() {
+    console.log('Component WILL MOUNT!')
+  }
+  componentDidMount() {
+    console.log('Component DID MOUNT!')
+  }
+  componentWillReceiveProps(newProps) {
+    console.log('Component WILL RECEIVE PROPS!')
+  }
+  shouldComponentUpdate(newProps, newState) {
+    console.log(newProps, newState)
+    return true
+  }
+  componentWillUpdate(newProps, newState) {
+    console.log('Component WILL UPDATE!')
+  }
+  componentDidUpdate(newProps, newState) {
+    console.log('Component DID UPDATE!')
+  }
+  componentWillUnmount() {
+    console.log('Component WILL UNMOUNT!')
+  }
+
+  render() {
+    return (
+      <div>
+        <h3>{this.props.myNumber}</h3>
+      </div>
+    )
+  }
+}
+
+class UserGist extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {username: '', lastGistUrl: ''}
+  }
+
+  componentDidMount() {
+    this.serverRequest = $.get(this.props.source, function (result) {
+      var lastGist = result[0]
+      console.log(result)
+      this.setState({
+        username: lastGist.owner.login,
+        lastGistUrl: lastGist.html_url
+      })
+    }.bind(this))
+  }
+
+  componentWillUnmount() {
+    this.serverRequest.abort()
+  }
+
+  render() {
+    return (
+      <div>
+        {this.state.username} 用户最新的Gist共享地址：
+        <a href={this.state.lastGistUrl}>{this.state.lastGistUrl}</a>
+      </div>
+    )
+  }
+}
+
+class Content1 extends React.Component {
+  render() {
+    return <div>
+              <input type="text" value={this.props.myDataProp} onChange={this.props.updateStateProp}/>
+              <h4>{this.props.myDataProp}</h4>
+            </div>
+  }
+}
+class HelloMessage1 extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {value: 'Helle Runoob!'}
+    this.handleChange = this.handleChange.bind(this)
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value})
+  }
+  render() {
+    var value = this.state.value
+    return <div>
+              <Content1 myDataProp={value} updateStateProp={this.handleChange} />
+            </div>
+  }
+}
+
+class FlavorForm extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {value: 'cocoNut'}
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  handleChange(event) {
+    this.setState({value: event.target.value})
+  }
+
+  handleSubmit(event) {
+    alert('Your Favorite Flavor is:' + this.state.value)
+    const select = this.refs.select
+    console.log(select.value, select.getBoundingClientRect())
+    event.preventDefault()
+  }
+
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          <select value={this.state.value} onChange={this.handleChange} ref="select">
+            <option value="gg">Google</option>
+            <option value="rn">Runoob</option>
+            <option value="tb">Taobao</option>
+            <option value="fb">Facebook</option>
+          </select>
+        </label>
+        <input type="submit" value="提交" />
+      </form>
+    )
+  }
+}
+
+class Reservation extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      isGoing: true,
+      numberOfGuests: 2
+    }
+    this.handleInputChange = this.handleInputChange.bind(this)
+  }
+
+  handleInputChange(event) {
+    const target = event.target
+    const value = target.type === 'checkbox' ? target.checked : target.value
+    const name = target.name
+    this.setState({
+      [name]: value
+    })
+  }
+
+  render() {
+    return (
+      <form>
+        <label>
+          是否离开：
+          <input name='isGoing' type='checkbox' checked={this.state.isGoing}
+          onChange={this.handleInputChange}/>
+        </label>
+        <br />
+        <label>
+          访客数：
+          <input name='numberOfGuests' type='number' value={this.state.numberOfGuests}
+          onChange={this.handleInputChange}/>
+        </label>
+      </form>
+    )
   }
 }
 
@@ -346,9 +548,8 @@ class App extends Component {
           {/*注释：react组件*/}
           <Clock1 date={new Date()}/>
           <Clock2 />
-          <Clock2 />
           <div>{arr}</div>
-          <WebSite />
+          <WebSite text="react opacity"/>
           <Toggle />
           {/* <Greeting isLoggedIn={true}/> */}
           <LoginControl />
@@ -356,6 +557,11 @@ class App extends Component {
           <Page />
           <Blog posts={posts} />
           <Counter />
+          <Button />
+          <UserGist source="https://api.github.com/users/octocat/gists"/>
+          <HelloMessage1 />
+          <FlavorForm />
+          <Reservation />
         </header>
       </div>
     );
